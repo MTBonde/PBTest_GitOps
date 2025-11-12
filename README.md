@@ -39,3 +39,14 @@ Flux Detects Change
     ↓
 Kubernetes Deployment (MicroK8s)
 ```
+
+# Initial quick test with flux
+
+```
+flux bootstrap github \
+  --owner=MTBonde \
+  --repository=PBTest_GitOps \
+  --branch=main \
+  --path=clusters/dev \
+  --personal 
+```
