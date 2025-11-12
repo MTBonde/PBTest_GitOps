@@ -12,17 +12,25 @@ Repository for learning and testing Learning, Testing and understanding Gitops
 
 ## Prerequisites
 
-- MicroK8s installed and running
+- MicroK8s or kubernetes for docker desktop installed and running
 - Docker installed
 - GitHub account with repository access
-- Completed Phase 1 (PBTest_AutoSemantic)
 
 Quick overview:
 1. Install Flux CLI
-2. Bootstrap Flux on MicroK8s
-3. Configure Flux to watch this repository
-4. Deploy to dev and prod namespaces
-5. Connect to Phase 1 for automatic deployments
+2. Bootstrap Flux 
+3. Configure Flux to watch repository
+
+### Initial quick test with flux
+
+```
+flux bootstrap github \
+  --owner=MTBonde \
+  --repository=PBTest_GitOps \
+  --branch=main \
+  --path=clusters/dev \
+  --personal
+```
 
 ## The Complete Flow
 
@@ -40,13 +48,32 @@ Flux Detects Change
 Kubernetes Deployment (MicroK8s)
 ```
 
-# Initial quick test with flux
+## Setup for Docker Desktop 
 
-```
+```bash
+# Install Flux CLI (in WSL)
+curl -s https://fluxcd.io/install.sh | sudo bash
+
+# Bootstrap Flux to Docker Desktop Kubernetes
+#works best with public repo and will ask for PAT!
 flux bootstrap github \
-  --owner=MTBonde \
-  --repository=PBTest_GitOps \
-  --branch=main \
-  --path=clusters/dev \
-  --personal 
+  --context=docker-desktop \     # Use Docker Desktop Kubernetes cluster
+  --owner=MTBonde \               # GitHub organization/user
+  --repository=PBTest_GitOps \   # GitOps repository name
+  --branch=main \                 # Branch to sync from
+  --path=./manifests \            # Path in repo containing Kubernetes manifests
+  --personal                      # Use personal GitHub account (not organization)
+
+# Verify it works
+flux check --context=docker-desktop
+# Expected: All checks should pass with green checkmarks
+# ✔ helm-controller: deployment ready
+# ✔ kustomize-controller: deployment ready
+# ✔ notification-controller: deployment ready
+# ✔ source-controller: deployment ready
+
+kubectl get pods -n hagi --context=docker-desktop
+# Expected: hello-nginx pod running (if using test_deployment.yml)
+# NAME                           READY   STATUS    RESTARTS   AGE
+# hello-nginx-ff8dbc888-756jg    1/1     Running   0          2m
 ```
